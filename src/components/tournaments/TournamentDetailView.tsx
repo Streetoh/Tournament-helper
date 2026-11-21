@@ -54,6 +54,16 @@ export function TournamentDetailView({
   const [showAddModal, setShowAddModal] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [copiedLang, setCopiedLang] = useState<'et' | 'en' | null>(null)
+  const [revealedFees, setRevealedFees] = useState<Set<string>>(() => new Set())
+
+  const toggleFeeReveal = (playerId: string) => {
+    setRevealedFees((prev) => {
+      const next = new Set(prev)
+      if (next.has(playerId)) next.delete(playerId)
+      else next.add(playerId)
+      return next
+    })
+  }
 
   const playerMap = useMemo(() => new Map(players.map((p) => [p.id, p])), [players])
   const teamMap = useMemo(() => new Map(teams.map((t) => [t.id, t])), [teams])
@@ -443,6 +453,7 @@ export function TournamentDetailView({
             const nameParts = displayName.split(/\s+/)
             const fee = getParticipantFee(part, tournament, fin)
             const isPassenger = part.role === 'passenger'
+            const isRevealed = revealedFees.has(part.playerId)
 
             return (
               <div key={part.playerId} className="flex items-start gap-3 px-3.5 py-3">
@@ -466,9 +477,16 @@ export function TournamentDetailView({
                         </span>
                       )}
                     </div>
-                    <span className="font-mono font-bold text-[15px] text-[#F5F5F0] tabular-nums shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => toggleFeeReveal(part.playerId)}
+                      aria-label={isRevealed ? 'Ocultar importe' : 'Mostrar importe'}
+                      className={`font-mono font-bold text-[15px] text-[#F5F5F0] tabular-nums shrink-0 px-1.5 py-0.5 -mr-1.5 rounded-lg transition-all cursor-pointer ${
+                        isRevealed ? '' : 'blur-[6px] select-none'
+                      }`}
+                    >
                       {formatMoney(fee)}
-                    </span>
+                    </button>
                   </div>
 
                   {/* Line 2: Touch Controls */}
