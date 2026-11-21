@@ -33,10 +33,8 @@ public class MainActivity extends BridgeActivity {
                 Insets bars = windowInsets.getInsets(
                         WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout()
                 );
-                Insets ime = windowInsets.getInsets(WindowInsetsCompat.Type.ime());
-                int bottom = Math.max(bars.bottom, ime.bottom);
-                view.setPadding(bars.left, bars.top, bars.right, bottom);
-                return WindowInsetsCompat.CONSUMED;
+                view.setPadding(bars.left, bars.top, bars.right, bars.bottom);
+                return windowInsets;
             });
         }
     }

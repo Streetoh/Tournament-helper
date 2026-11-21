@@ -53,6 +53,7 @@ export function TournamentDetailView({
 }: TournamentDetailViewProps) {
   const [showAddModal, setShowAddModal] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [confirmRemove, setConfirmRemove] = useState<{ id: string; name: string } | null>(null)
   const [copiedLang, setCopiedLang] = useState<'et' | 'en' | null>(null)
   const [revealedFees, setRevealedFees] = useState<Set<string>>(() => new Set())
 
@@ -560,7 +561,7 @@ export function TournamentDetailView({
                     {!part.paid && (
                       <button
                         type="button"
-                        onClick={() => handleRemoveParticipant(part.playerId)}
+                        onClick={() => setConfirmRemove({ id: part.playerId, name: displayName })}
                         title="Quitar"
                         className="min-h-[36px] min-w-[36px] rounded-xl text-[#63636E] hover:text-[#F43F5E] flex items-center justify-center active:scale-[0.95] cursor-pointer"
                       >
@@ -588,6 +589,47 @@ export function TournamentDetailView({
           className="w-full rounded-xl bg-[#1C1C21] border border-[#24242B] px-3 py-2.5 text-sm text-[#F5F5F0] placeholder-[#63636E] focus:outline-none focus:border-[#C8FF2E] resize-y"
         />
       </div>
+
+      {confirmRemove && (
+        <div
+          onClick={() => setConfirmRemove(null)}
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/75 backdrop-blur-xs p-0 sm:p-4"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-sm rounded-t-3xl sm:rounded-2xl bg-[#131316] border-t sm:border border-[#24242B] p-4 space-y-4 pb-[calc(1rem+env(safe-area-inset-bottom))]"
+          >
+            <div className="sm:hidden flex justify-center -mt-1.5">
+              <div className="w-10 h-1 rounded-full bg-[#32323C]" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-base font-bold text-[#F5F5F0]">Quitar participante</h3>
+              <p className="text-sm text-[#9A9AA6]">
+                ¿Quitar a <strong className="text-[#F5F5F0]">{confirmRemove.name}</strong> de este torneo?
+              </p>
+            </div>
+            <div className="flex gap-2.5">
+              <button
+                type="button"
+                onClick={() => setConfirmRemove(null)}
+                className="flex-1 rounded-xl border border-[#24242B] bg-[#1C1C21] min-h-[44px] text-sm font-semibold text-[#9A9AA6] hover:text-[#F5F5F0] cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  await handleRemoveParticipant(confirmRemove.id)
+                  setConfirmRemove(null)
+                }}
+                className="flex-1 rounded-xl bg-[#F43F5E] min-h-[44px] text-sm font-bold text-white hover:brightness-95 active:scale-[0.98] cursor-pointer"
+              >
+                Quitar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showAddModal && (
         <AddParticipantsModal
