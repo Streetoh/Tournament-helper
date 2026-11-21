@@ -7,7 +7,7 @@ export function Toast({ message }: ToastProps) {
 
   return (
     <div className="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
-      <div className="rounded-lg bg-[#141821] border border-[#232938] px-4 py-2 text-sm font-medium text-[#F1F5F9] shadow-xl">
+      <div className="rounded-xl bg-[#1C1C21] border border-[#32323C] px-4 py-2 text-xs font-semibold text-[#F5F5F0] shadow-2xl">
         {message}
       </div>
     </div>

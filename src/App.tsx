@@ -230,6 +230,7 @@ export function App() {
   return (
     <Layout
       activeTab={activeTab}
+      coachUnlocked={coachUnlocked}
       onSelectTab={(tab) => {
         setActiveTab(tab)
         if (tab !== 'coach') {

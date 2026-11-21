@@ -118,48 +118,60 @@ export function CalculatorView() {
   }
 
   const btnBase =
-    'h-14 rounded-2xl border border-[#232938] text-lg font-semibold tabular-nums flex items-center justify-center transition-colors active:scale-[0.98] cursor-pointer select-none'
+    'h-14 rounded-2xl border text-lg font-mono font-semibold tabular-nums flex items-center justify-center transition-transform active:scale-[0.96] cursor-pointer select-none'
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold tracking-tight text-[#F1F5F9]">Calc</h1>
+      <h1 className="text-[26px] font-extrabold tracking-tight text-[#F5F5F0]">Calc</h1>
 
       {/* History */}
       {history.length > 0 && (
-        <div className="rounded-2xl border border-[#232938] bg-[#141821] px-3.5 py-2.5 space-y-1 max-h-28 overflow-y-auto">
+        <div className="rounded-2xl border border-[#24242B] bg-[#131316] px-4 py-2.5 space-y-1 max-h-28 overflow-y-auto">
           {history.map((item, idx) => (
             <button
               key={`${item.expr}-${idx}`}
               type="button"
               onClick={() => setDisplay(item.result)}
-              className="w-full flex items-center justify-between text-xs tabular-nums text-[#64748B] hover:text-[#CBD5E1] cursor-pointer"
+              className="w-full flex items-center justify-between text-xs font-mono tabular-nums text-[#63636E] hover:text-[#F5F5F0] cursor-pointer"
             >
               <span>{item.expr}</span>
-              <span className="font-semibold text-[#94A3B8]">= {item.result}</span>
+              <span className="font-bold text-[#9A9AA6]">= {item.result}</span>
             </button>
           ))}
         </div>
       )}
 
       {/* Display */}
-      <div className="rounded-2xl border border-[#232938] bg-[#141821] p-4 text-right">
-        <div className="h-5 text-xs text-[#64748B] tabular-nums">
+      <div className="rounded-2xl border border-[#24242B] bg-[#131316] p-5 text-right space-y-1">
+        <div className="h-5 text-sm font-mono text-[#9A9AA6] tabular-nums">
           {previous !== null && operator ? `${previous} ${operator}` : ''}
         </div>
-        <div className="text-4xl font-bold tracking-tight text-[#F1F5F9] tabular-nums truncate">
+        <div className="text-5xl font-mono font-bold tracking-tight text-[#F5F5F0] tabular-nums truncate">
           {display.replace('.', ',')}
         </div>
       </div>
 
       {/* Keypad */}
       <div className="grid grid-cols-4 gap-2.5">
-        <button type="button" onClick={clearAll} className={`${btnBase} bg-[#1C2230] text-[#FB7185]`}>
+        <button
+          type="button"
+          onClick={clearAll}
+          className={`${btnBase} bg-[#1C1C21] border-[#F43F5E]/25 text-[#F43F5E]`}
+        >
           C
         </button>
-        <button type="button" onClick={handleToggleSign} className={`${btnBase} bg-[#1C2230] text-[#CBD5E1]`}>
+        <button
+          type="button"
+          onClick={handleToggleSign}
+          className={`${btnBase} bg-[#1C1C21] border-[#24242B] text-[#C8FF2E]`}
+        >
           +/-
         </button>
-        <button type="button" onClick={handlePercent} className={`${btnBase} bg-[#1C2230] text-[#CBD5E1]`}>
+        <button
+          type="button"
+          onClick={handlePercent}
+          className={`${btnBase} bg-[#1C1C21] border-[#24242B] text-[#C8FF2E]`}
+        >
           %
         </button>
         <button
@@ -167,8 +179,8 @@ export function CalculatorView() {
           onClick={() => handleOperator('÷')}
           className={`${btnBase} ${
             operator === '÷' && waitingNext
-              ? 'bg-[#3B82F6] text-white border-[#3B82F6]'
-              : 'bg-[#1C2230] text-[#3B82F6]'
+              ? 'bg-[#C8FF2E] border-[#C8FF2E] text-[#0A0A0C]'
+              : 'bg-[#1C1C21] border-[#24242B] text-[#C8FF2E]'
           }`}
         >
           ÷
@@ -179,7 +191,7 @@ export function CalculatorView() {
             key={d}
             type="button"
             onClick={() => inputDigit(d)}
-            className={`${btnBase} bg-[#141821] text-[#F1F5F9] hover:bg-[#191F2B]`}
+            className={`${btnBase} bg-[#131316] border-[#24242B] text-[#F5F5F0] hover:bg-[#1C1C21]`}
           >
             {d}
           </button>
@@ -189,8 +201,8 @@ export function CalculatorView() {
           onClick={() => handleOperator('×')}
           className={`${btnBase} ${
             operator === '×' && waitingNext
-              ? 'bg-[#3B82F6] text-white border-[#3B82F6]'
-              : 'bg-[#1C2230] text-[#3B82F6]'
+              ? 'bg-[#C8FF2E] border-[#C8FF2E] text-[#0A0A0C]'
+              : 'bg-[#1C1C21] border-[#24242B] text-[#C8FF2E]'
           }`}
         >
           ×
@@ -201,7 +213,7 @@ export function CalculatorView() {
             key={d}
             type="button"
             onClick={() => inputDigit(d)}
-            className={`${btnBase} bg-[#141821] text-[#F1F5F9] hover:bg-[#191F2B]`}
+            className={`${btnBase} bg-[#131316] border-[#24242B] text-[#F5F5F0] hover:bg-[#1C1C21]`}
           >
             {d}
           </button>
@@ -211,8 +223,8 @@ export function CalculatorView() {
           onClick={() => handleOperator('-')}
           className={`${btnBase} ${
             operator === '-' && waitingNext
-              ? 'bg-[#3B82F6] text-white border-[#3B82F6]'
-              : 'bg-[#1C2230] text-[#3B82F6]'
+              ? 'bg-[#C8FF2E] border-[#C8FF2E] text-[#0A0A0C]'
+              : 'bg-[#1C1C21] border-[#24242B] text-[#C8FF2E]'
           }`}
         >
           -
@@ -223,7 +235,7 @@ export function CalculatorView() {
             key={d}
             type="button"
             onClick={() => inputDigit(d)}
-            className={`${btnBase} bg-[#141821] text-[#F1F5F9] hover:bg-[#191F2B]`}
+            className={`${btnBase} bg-[#131316] border-[#24242B] text-[#F5F5F0] hover:bg-[#1C1C21]`}
           >
             {d}
           </button>
@@ -233,8 +245,8 @@ export function CalculatorView() {
           onClick={() => handleOperator('+')}
           className={`${btnBase} ${
             operator === '+' && waitingNext
-              ? 'bg-[#3B82F6] text-white border-[#3B82F6]'
-              : 'bg-[#1C2230] text-[#3B82F6]'
+              ? 'bg-[#C8FF2E] border-[#C8FF2E] text-[#0A0A0C]'
+              : 'bg-[#1C1C21] border-[#24242B] text-[#C8FF2E]'
           }`}
         >
           +
@@ -243,14 +255,14 @@ export function CalculatorView() {
         <button
           type="button"
           onClick={() => inputDigit('0')}
-          className={`${btnBase} bg-[#141821] text-[#F1F5F9] hover:bg-[#191F2B]`}
+          className={`${btnBase} bg-[#131316] border-[#24242B] text-[#F5F5F0] hover:bg-[#1C1C21]`}
         >
           0
         </button>
         <button
           type="button"
           onClick={inputDecimal}
-          className={`${btnBase} bg-[#141821] text-[#F1F5F9] hover:bg-[#191F2B]`}
+          className={`${btnBase} bg-[#131316] border-[#24242B] text-[#F5F5F0] hover:bg-[#1C1C21]`}
         >
           ,
         </button>
@@ -258,14 +270,14 @@ export function CalculatorView() {
           type="button"
           onClick={backspace}
           aria-label="Borrar"
-          className={`${btnBase} bg-[#141821] text-[#94A3B8] hover:bg-[#191F2B]`}
+          className={`${btnBase} bg-[#131316] border-[#24242B] text-[#9A9AA6] hover:bg-[#1C1C21]`}
         >
           <Delete className="h-5 w-5" />
         </button>
         <button
           type="button"
           onClick={handleEquals}
-          className={`${btnBase} bg-[#3B82F6] border-[#3B82F6] text-white hover:bg-[#2563EB]`}
+          className={`${btnBase} bg-[#C8FF2E] border-[#C8FF2E] text-[#0A0A0C] font-bold hover:brightness-95`}
         >
           =
         </button>

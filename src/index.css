@@ -1,5 +1,21 @@
 @import "tailwindcss";
 
+@theme {
+  --color-canvas: #0A0A0C;
+  --color-surface: #131316;
+  --color-elevated: #1C1C21;
+  --color-border-subtle: #24242B;
+  --color-border-strong: #32323C;
+  --color-ink-primary: #F5F5F0;
+  --color-ink-muted: #9A9AA6;
+  --color-ink-dim: #63636E;
+  --color-volt: #C8FF2E;
+  --color-volt-ink: #0A0A0C;
+
+  --font-sans: "Plus Jakarta Sans", "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
 @layer base {
   :root {
     color-scheme: dark;
@@ -7,10 +23,11 @@
 
   html,
   body {
-    background-color: #0B0D12;
-    color: #F1F5F9;
-    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+    background-color: #0A0A0C;
+    color: #F5F5F0;
+    font-family: var(--font-sans);
     -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
   }
 
   input,
@@ -35,6 +52,18 @@
   font-variant-numeric: tabular-nums;
 }
 
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+.animate-shake {
+  animation: shake 0.3s ease-in-out;
+}
+
 /* Custom thin dark scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
@@ -42,10 +71,10 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #0B0D12;
+  background: #0A0A0C;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #232938;
+  background: #24242B;
   border-radius: 9999px;
 }

@@ -1,4 +1,4 @@
-import { Check, Search, X } from 'lucide-react'
+import { Bus, Car, Check, Search, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import type { Player, Team, TransportMode } from '../../types/models'
 import { getTeamBadgeStyle } from '../../utils/teamColors'
@@ -10,7 +10,12 @@ interface AddParticipantsModalProps {
   existingPlayerIds: Set<string>
   onClose: () => void
   onAddPlayers: (playerIds: string[], transport: TransportMode) => void
-  onCreateAndAddPlayer: (firstName: string, lastName: string, teamIds: string[], transport: TransportMode) => Promise<void>
+  onCreateAndAddPlayer: (
+    firstName: string,
+    lastName: string,
+    teamIds: string[],
+    transport: TransportMode
+  ) => Promise<void>
   onAddPassenger: (name: string) => Promise<void>
 }
 
@@ -43,16 +48,14 @@ export function AddParticipantsModal({
   )
   const [uncheckedIds, setUncheckedIds] = useState<Set<string>>(new Set())
 
-  // Single/multi player mode
+  // Multi player mode
   const [search, setSearch] = useState('')
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<Set<string>>(new Set())
   const availablePlayers = useMemo(() => {
     const q = search.trim().toLowerCase()
     return players
       .filter((p) => !existingPlayerIds.has(p.id))
-      .filter((p) =>
-        q ? `${p.firstName} ${p.lastName}`.toLowerCase().includes(q) : true
-      )
+      .filter((p) => (q ? `${p.firstName} ${p.lastName}`.toLowerCase().includes(q) : true))
       .sort((a, b) =>
         `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`, 'es', {
           sensitivity: 'base',
@@ -106,14 +109,19 @@ export function AddParticipantsModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-xs p-0 sm:p-4">
-      <div className="w-full max-w-lg rounded-t-2xl sm:rounded-2xl bg-[#141821] border border-[#232938] max-h-[88vh] flex flex-col">
-        <div className="flex items-center justify-between px-4 py-3.5 border-b border-[#232938]">
-          <h2 className="text-base font-semibold text-[#F1F5F9]">Añadir participantes</h2>
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/75 backdrop-blur-xs p-0 sm:p-4">
+      <div className="w-full max-w-lg rounded-t-3xl sm:rounded-2xl bg-[#131316] border-t sm:border border-[#24242B] max-h-[90vh] flex flex-col">
+        {/* Handle */}
+        <div className="sm:hidden flex justify-center pt-2.5 pb-1">
+          <div className="w-10 h-1 rounded-full bg-[#32323C]" />
+        </div>
+
+        <div className="flex items-center justify-between px-4 py-3 border-b border-[#24242B]">
+          <h2 className="text-base font-bold text-[#F5F5F0]">Añadir participantes</h2>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg text-[#64748B] hover:text-[#F1F5F9] cursor-pointer"
+            className="min-h-[40px] min-w-[40px] rounded-xl text-[#9A9AA6] hover:text-[#F5F5F0] flex items-center justify-center cursor-pointer"
           >
             <X className="h-5 w-5" />
           </button>
@@ -121,7 +129,7 @@ export function AddParticipantsModal({
 
         {/* Mode tabs + Default transport */}
         <div className="px-4 pt-3 space-y-3">
-          <div className="grid grid-cols-4 gap-1 rounded-xl bg-[#0B0D12] p-1 border border-[#232938]">
+          <div className="grid grid-cols-4 gap-1 rounded-xl bg-[#1C1C21] p-1 border border-[#24242B]">
             {(
               [
                 ['team', 'Equipo'],
@@ -134,8 +142,10 @@ export function AddParticipantsModal({
                 key={key}
                 type="button"
                 onClick={() => setMode(key)}
-                className={`rounded-lg py-1.5 text-xs font-medium transition-colors cursor-pointer ${
-                  mode === key ? 'bg-[#3B82F6] text-white' : 'text-[#94A3B8] hover:text-[#F1F5F9]'
+                className={`rounded-lg min-h-[36px] text-xs transition-all active:scale-[0.98] cursor-pointer ${
+                  mode === key
+                    ? 'bg-[#C8FF2E] text-[#0A0A0C] font-bold'
+                    : 'text-[#9A9AA6] font-medium hover:text-[#F5F5F0]'
                 }`}
               >
                 {label}
@@ -145,40 +155,39 @@ export function AddParticipantsModal({
 
           {mode !== 'passenger' && (
             <div className="flex items-center justify-between text-xs">
-            <span className="text-[#94A3B8]">Transporte inicial</span>
-            <div className="flex gap-1.5">
-              {(['car', 'bus'] as const).map((t) => {
-                const active = transport === t
-                const activeStyle =
-                  t === 'bus'
-                    ? 'bg-[#3B82F6]/20 border-[#3B82F6] text-[#60A5FA]'
-                    : 'bg-[#F59E0B]/20 border-[#F59E0B] text-[#FBBF24]'
-                return (
-                  <button
-                    key={t}
-                    type="button"
-                    onClick={() => setTransport(t)}
-                    className={`rounded-lg px-3 py-1 text-xs font-semibold border cursor-pointer ${
-                      active
-                        ? activeStyle
-                        : 'bg-[#0B0D12] border-[#232938] text-[#94A3B8]'
-                    }`}
-                  >
-                    {t === 'bus' ? 'Bus' : 'Coche'}
-                  </button>
-                )
-              })}
+              <span className="text-[#9A9AA6] font-medium">Transporte inicial</span>
+              <div className="flex gap-2">
+                {(['car', 'bus'] as const).map((t) => {
+                  const active = transport === t
+                  const activeStyle =
+                    t === 'bus'
+                      ? 'bg-[#38BDF8]/15 border-[#38BDF8]/40 text-[#38BDF8]'
+                      : 'bg-[#F59E0B]/15 border-[#F59E0B]/40 text-[#F59E0B]'
+                  return (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setTransport(t)}
+                      className={`inline-flex items-center gap-1.5 rounded-xl px-3 min-h-[36px] text-xs font-bold border active:scale-[0.98] cursor-pointer ${
+                        active ? activeStyle : 'bg-[#1C1C21] border-[#24242B] text-[#9A9AA6]'
+                      }`}
+                    >
+                      {t === 'bus' ? <Bus className="h-3.5 w-3.5" /> : <Car className="h-3.5 w-3.5" />}
+                      <span>{t === 'bus' ? 'Bus' : 'Coche'}</span>
+                    </button>
+                  )
+                })}
+              </div>
             </div>
-          </div>
           )}
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-y-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
           {mode === 'team' && (
             <div className="space-y-3">
               {teams.length === 0 ? (
-                <p className="text-sm text-[#64748B] text-center py-6">Sin equipos</p>
+                <p className="text-sm text-[#63636E] text-center py-6">Sin equipos</p>
               ) : (
                 <>
                   <select
@@ -187,7 +196,7 @@ export function AddParticipantsModal({
                       setSelectedTeamId(e.target.value)
                       setUncheckedIds(new Set())
                     }}
-                    className="w-full rounded-xl bg-[#0B0D12] border border-[#232938] px-3 py-2 text-sm text-[#F1F5F9] focus:outline-none focus:border-[#3B82F6]"
+                    className="w-full h-11 rounded-xl bg-[#1C1C21] border border-[#24242B] px-3 text-sm text-[#F5F5F0] focus:outline-none focus:border-[#C8FF2E]"
                   >
                     {teams.map((t) => (
                       <option key={t.id} value={t.id}>
@@ -197,11 +206,13 @@ export function AddParticipantsModal({
                   </select>
 
                   {teamPlayers.length === 0 ? (
-                    <p className="text-sm text-[#64748B] text-center py-6">Sin jugadores disponibles</p>
+                    <p className="text-sm text-[#63636E] text-center py-6">
+                      Sin jugadores disponibles
+                    </p>
                   ) : (
                     <>
                       <div className="flex items-center justify-between text-xs px-0.5">
-                        <span className="text-[#94A3B8] tabular-nums">
+                        <span className="text-[#9A9AA6] tabular-nums">
                           {teamPlayers.length - uncheckedIds.size}/{teamPlayers.length} seleccionados
                         </span>
                         <button
@@ -213,45 +224,45 @@ export function AddParticipantsModal({
                                 : new Set()
                             )
                           }
-                          className="font-medium text-[#3B82F6] hover:text-[#60A5FA] cursor-pointer"
+                          className="font-bold text-[#C8FF2E] hover:brightness-90 cursor-pointer"
                         >
                           {uncheckedIds.size === 0 ? 'Desmarcar todos' : 'Marcar todos'}
                         </button>
                       </div>
 
-                      <div className="divide-y divide-[#232938] rounded-xl border border-[#232938] bg-[#0B0D12]">
-                      {teamPlayers.map((player) => {
-                        const checked = !uncheckedIds.has(player.id)
-                        return (
-                          <button
-                            key={player.id}
-                            type="button"
-                            onClick={() => toggleTeamPlayer(player.id)}
-                            className="w-full flex items-center justify-between px-3 py-2.5 text-left hover:bg-[#141821] cursor-pointer"
-                          >
-                            <div className="flex items-center gap-2.5 min-w-0">
-                              <Avatar
-                                firstName={player.firstName}
-                                lastName={player.lastName}
-                                photoBase64={player.photoBase64}
-                                size="sm"
-                              />
-                              <span className="text-sm text-[#F1F5F9] truncate">
-                                {player.firstName} {player.lastName}
-                              </span>
-                            </div>
-                            <span
-                              className={`h-5 w-5 rounded-md border flex items-center justify-center ${
-                                checked
-                                  ? 'bg-[#3B82F6] border-[#3B82F6] text-white'
-                                  : 'border-[#334155] bg-transparent'
-                              }`}
+                      <div className="divide-y divide-[#24242B] rounded-2xl border border-[#24242B] bg-[#1C1C21]">
+                        {teamPlayers.map((player) => {
+                          const checked = !uncheckedIds.has(player.id)
+                          return (
+                            <button
+                              key={player.id}
+                              type="button"
+                              onClick={() => toggleTeamPlayer(player.id)}
+                              className="w-full flex items-center justify-between px-3.5 min-h-[48px] py-2 text-left hover:bg-[#24242B]/50 cursor-pointer"
                             >
-                              {checked && <Check className="h-3.5 w-3.5" />}
-                            </span>
-                          </button>
-                        )
-                      })}
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <Avatar
+                                  firstName={player.firstName}
+                                  lastName={player.lastName}
+                                  photoBase64={player.photoBase64}
+                                  size="sm"
+                                />
+                                <span className="text-sm font-medium text-[#F5F5F0]">
+                                  {player.firstName} {player.lastName}
+                                </span>
+                              </div>
+                              <span
+                                className={`h-5 w-5 rounded-md border flex items-center justify-center shrink-0 ${
+                                  checked
+                                    ? 'bg-[#C8FF2E] border-[#C8FF2E] text-[#0A0A0C]'
+                                    : 'border-[#32323C] bg-[#131316]'
+                                }`}
+                              >
+                                {checked && <Check className="h-3.5 w-3.5 stroke-[3]" />}
+                              </span>
+                            </button>
+                          )
+                        })}
                       </div>
                     </>
                   )}
@@ -260,7 +271,7 @@ export function AddParticipantsModal({
                     type="button"
                     disabled={teamPlayers.filter((p) => !uncheckedIds.has(p.id)).length === 0}
                     onClick={handleConfirmTeam}
-                    className="w-full rounded-xl bg-[#3B82F6] py-2.5 text-sm font-semibold text-white hover:bg-[#2563EB] disabled:opacity-40 cursor-pointer"
+                    className="w-full rounded-xl bg-[#C8FF2E] min-h-[44px] text-sm font-bold text-[#0A0A0C] hover:brightness-95 active:scale-[0.98] disabled:opacity-40 cursor-pointer"
                   >
                     Añadir ({teamPlayers.filter((p) => !uncheckedIds.has(p.id)).length})
                   </button>
@@ -272,20 +283,20 @@ export function AddParticipantsModal({
           {mode === 'player' && (
             <div className="space-y-3">
               <div className="relative">
-                <Search className="h-4 w-4 text-[#64748B] absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="h-4 w-4 text-[#63636E] absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Buscar jugador..."
-                  className="w-full rounded-xl bg-[#0B0D12] border border-[#232938] pl-9 pr-3 py-2 text-sm text-[#F1F5F9] placeholder-[#475569] focus:outline-none focus:border-[#3B82F6]"
+                  className="w-full h-11 rounded-xl bg-[#1C1C21] border border-[#24242B] pl-10 pr-3 text-sm text-[#F5F5F0] placeholder-[#63636E] focus:outline-none focus:border-[#C8FF2E]"
                 />
               </div>
 
               {availablePlayers.length === 0 ? (
-                <p className="text-sm text-[#64748B] text-center py-6">Sin jugadores disponibles</p>
+                <p className="text-sm text-[#63636E] text-center py-6">Sin jugadores disponibles</p>
               ) : (
-                <div className="divide-y divide-[#232938] rounded-xl border border-[#232938] bg-[#0B0D12]">
+                <div className="divide-y divide-[#24242B] rounded-2xl border border-[#24242B] bg-[#1C1C21]">
                   {availablePlayers.map((player) => {
                     const checked = selectedPlayerIds.has(player.id)
                     return (
@@ -293,8 +304,8 @@ export function AddParticipantsModal({
                         key={player.id}
                         type="button"
                         onClick={() => toggleSelectedPlayer(player.id)}
-                        className={`w-full flex items-center justify-between px-3 py-2.5 text-left transition-colors cursor-pointer ${
-                          checked ? 'bg-[#3B82F6]/10' : 'hover:bg-[#141821]'
+                        className={`w-full flex items-center justify-between px-3.5 min-h-[48px] py-2 text-left transition-colors cursor-pointer ${
+                          checked ? 'bg-[#C8FF2E]/8' : 'hover:bg-[#24242B]/50'
                         }`}
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
@@ -304,18 +315,18 @@ export function AddParticipantsModal({
                             photoBase64={player.photoBase64}
                             size="sm"
                           />
-                          <span className="text-sm text-[#F1F5F9] truncate">
+                          <span className="text-sm font-medium text-[#F5F5F0]">
                             {player.firstName} {player.lastName}
                           </span>
                         </div>
                         <span
                           className={`h-5 w-5 rounded-md border flex items-center justify-center shrink-0 ${
                             checked
-                              ? 'bg-[#3B82F6] border-[#3B82F6] text-white'
-                              : 'border-[#334155] bg-transparent'
+                              ? 'bg-[#C8FF2E] border-[#C8FF2E] text-[#0A0A0C]'
+                              : 'border-[#32323C] bg-[#131316]'
                           }`}
                         >
-                          {checked && <Check className="h-3.5 w-3.5" />}
+                          {checked && <Check className="h-3.5 w-3.5 stroke-[3]" />}
                         </span>
                       </button>
                     )
@@ -327,7 +338,7 @@ export function AddParticipantsModal({
                 type="button"
                 disabled={selectedPlayerIds.size === 0}
                 onClick={handleConfirmPlayers}
-                className="w-full rounded-xl bg-[#3B82F6] py-2.5 text-sm font-semibold text-white hover:bg-[#2563EB] disabled:opacity-40 cursor-pointer"
+                className="w-full rounded-xl bg-[#C8FF2E] min-h-[44px] text-sm font-bold text-[#0A0A0C] hover:brightness-95 active:scale-[0.98] disabled:opacity-40 cursor-pointer"
               >
                 Añadir ({selectedPlayerIds.size})
               </button>
@@ -337,30 +348,30 @@ export function AddParticipantsModal({
           {mode === 'new' && (
             <form onSubmit={handleCreateNew} className="space-y-3">
               <div>
-                <label className="block text-xs font-medium text-[#94A3B8] mb-1">Nombre</label>
+                <label className="block text-xs font-medium text-[#9A9AA6] mb-1">Nombre</label>
                 <input
                   type="text"
                   required
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   placeholder="Nombre"
-                  className="w-full rounded-xl bg-[#0B0D12] border border-[#232938] px-3 py-2 text-sm text-[#F1F5F9] placeholder-[#475569] focus:outline-none focus:border-[#3B82F6]"
+                  className="w-full h-11 rounded-xl bg-[#1C1C21] border border-[#24242B] px-3 text-sm text-[#F5F5F0] placeholder-[#63636E] focus:outline-none focus:border-[#C8FF2E]"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-[#94A3B8] mb-1">Apellidos</label>
+                <label className="block text-xs font-medium text-[#9A9AA6] mb-1">Apellidos</label>
                 <input
                   type="text"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   placeholder="Apellidos"
-                  className="w-full rounded-xl bg-[#0B0D12] border border-[#232938] px-3 py-2 text-sm text-[#F1F5F9] placeholder-[#475569] focus:outline-none focus:border-[#3B82F6]"
+                  className="w-full h-11 rounded-xl bg-[#1C1C21] border border-[#24242B] px-3 text-sm text-[#F5F5F0] placeholder-[#63636E] focus:outline-none focus:border-[#C8FF2E]"
                 />
               </div>
 
               {teams.length > 0 && (
                 <div>
-                  <label className="block text-xs font-medium text-[#94A3B8] mb-1.5">Equipos</label>
+                  <label className="block text-xs font-medium text-[#9A9AA6] mb-1.5">Equipos</label>
                   <div className="flex flex-wrap gap-1.5">
                     {teams.map((team) => {
                       const active = newPlayerTeamIds.includes(team.id)
@@ -374,8 +385,8 @@ export function AddParticipantsModal({
                             )
                           }
                           style={active ? getTeamBadgeStyle(team.color) : undefined}
-                          className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium border cursor-pointer ${
-                            active ? '' : 'bg-[#0B0D12] border-[#232938] text-[#94A3B8]'
+                          className={`flex items-center gap-1.5 rounded-lg px-2.5 min-h-[36px] text-xs font-semibold border cursor-pointer ${
+                            active ? '' : 'bg-[#1C1C21] border-[#24242B] text-[#9A9AA6]'
                           }`}
                         >
                           <span
@@ -392,7 +403,7 @@ export function AddParticipantsModal({
 
               <button
                 type="submit"
-                className="w-full rounded-xl bg-[#3B82F6] py-2.5 text-sm font-semibold text-white hover:bg-[#2563EB] cursor-pointer"
+                className="w-full rounded-xl bg-[#C8FF2E] min-h-[44px] text-sm font-bold text-[#0A0A0C] hover:brightness-95 active:scale-[0.98] cursor-pointer"
               >
                 Crear y añadir
               </button>
@@ -411,7 +422,7 @@ export function AddParticipantsModal({
               className="space-y-3"
             >
               <div>
-                <label className="block text-xs font-medium text-[#94A3B8] mb-1">
+                <label className="block text-xs font-medium text-[#9A9AA6] mb-1">
                   Nombre del pasajero
                 </label>
                 <input
@@ -421,27 +432,28 @@ export function AddParticipantsModal({
                   value={passengerName}
                   onChange={(e) => setPassengerName(e.target.value)}
                   placeholder="Padre de..."
-                  className="w-full rounded-xl bg-[#0B0D12] border border-[#232938] px-3 py-2 text-sm text-[#F1F5F9] placeholder-[#475569] focus:outline-none focus:border-[#3B82F6]"
+                  className="w-full h-11 rounded-xl bg-[#1C1C21] border border-[#24242B] px-3 text-sm text-[#F5F5F0] placeholder-[#63636E] focus:outline-none focus:border-[#C8FF2E]"
                 />
               </div>
 
               {addedPassengersCount > 0 && (
-                <p className="text-xs text-[#34D399] tabular-nums">
-                  {addedPassengersCount} {addedPassengersCount === 1 ? 'pasajero añadido' : 'pasajeros añadidos'}
+                <p className="text-xs font-semibold text-[#22C55E] tabular-nums">
+                  {addedPassengersCount}{' '}
+                  {addedPassengersCount === 1 ? 'pasajero añadido' : 'pasajeros añadidos'}
                 </p>
               )}
 
               <div className="flex gap-2.5">
                 <button
                   type="submit"
-                  className="flex-1 rounded-xl bg-[#3B82F6] py-2.5 text-sm font-semibold text-white hover:bg-[#2563EB] cursor-pointer"
+                  className="flex-1 rounded-xl bg-[#C8FF2E] min-h-[44px] text-sm font-bold text-[#0A0A0C] hover:brightness-95 active:scale-[0.98] cursor-pointer"
                 >
                   Añadir pasajero
                 </button>
                 <button
                   type="button"
                   onClick={onClose}
-                  className="rounded-xl border border-[#232938] bg-[#0B0D12] px-4 py-2.5 text-sm font-medium text-[#CBD5E1] hover:text-[#F1F5F9] cursor-pointer"
+                  className="rounded-xl border border-[#24242B] bg-[#1C1C21] px-4 min-h-[44px] text-sm font-semibold text-[#F5F5F0] cursor-pointer"
                 >
                   Listo
                 </button>

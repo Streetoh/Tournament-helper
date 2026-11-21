@@ -1,8 +1,8 @@
 import { Camera, Check, Pencil, Plus, Search, Tags, Trash2, UserCheck, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import type { Player, Team } from '../../types/models'
-import { getTeamBadgeStyle, TEAM_COLORS } from '../../utils/teamColors'
 import { compressImageToBase64 } from '../../utils/imageCompression'
+import { getTeamBadgeStyle, TEAM_COLORS } from '../../utils/teamColors'
 import { Avatar } from '../Avatar'
 
 interface TeamsViewProps {
@@ -62,14 +62,14 @@ export function TeamsView({
     return players
       .filter((p) => (selectedTeamFilter === 'all' ? true : p.teamIds.includes(selectedTeamFilter)))
       .filter((p) => (q ? `${p.firstName} ${p.lastName}`.toLowerCase().includes(q) : true))
-      .sort((a, b) => a.firstName.localeCompare(b.firstName))
+      .sort((a, b) => a.firstName.localeCompare(b.firstName, 'es', { sensitivity: 'base' }))
   }, [players, selectedTeamFilter, search])
 
   const modalFilteredPlayers = useMemo(() => {
     const q = membersSearch.trim().toLowerCase()
     return [...players]
       .filter((p) => (q ? `${p.firstName} ${p.lastName}`.toLowerCase().includes(q) : true))
-      .sort((a, b) => a.firstName.localeCompare(b.firstName))
+      .sort((a, b) => a.firstName.localeCompare(b.firstName, 'es', { sensitivity: 'base' }))
   }, [players, membersSearch])
 
   const openNewTeam = () => {
@@ -158,12 +158,12 @@ export function TeamsView({
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight text-[#F1F5F9]">Equipos</h1>
+        <h1 className="text-[26px] font-extrabold tracking-tight text-[#F5F5F0]">Equipos</h1>
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={openNewTeam}
-            className="rounded-xl border border-[#232938] bg-[#141821] px-3 py-2 text-xs font-semibold text-[#E2E8F0] hover:border-[#3B82F6] cursor-pointer"
+            className="rounded-xl border border-[#24242B] bg-[#1C1C21] px-3.5 min-h-[44px] text-xs font-bold text-[#F5F5F0] hover:border-[#32323C] active:scale-[0.98] cursor-pointer"
           >
             + Equipo
           </button>
@@ -171,22 +171,22 @@ export function TeamsView({
             type="button"
             onClick={openNewPlayer}
             aria-label="Nuevo jugador"
-            className="h-9 w-9 rounded-xl bg-[#3B82F6] text-white flex items-center justify-center hover:bg-[#2563EB] cursor-pointer"
+            className="w-11 h-11 rounded-2xl bg-[#C8FF2E] text-[#0A0A0C] flex items-center justify-center hover:brightness-95 active:scale-[0.98] cursor-pointer"
           >
-            <Plus className="h-5 w-5" />
+            <Plus className="h-5 w-5 stroke-[2.5]" />
           </button>
         </div>
       </div>
 
-      {/* Team Chips */}
+      {/* Team Filter Chips */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1">
         <button
           type="button"
           onClick={() => setSelectedTeamFilter('all')}
-          className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium border cursor-pointer ${
+          className={`shrink-0 rounded-xl px-3.5 min-h-[40px] text-xs font-bold border active:scale-[0.98] cursor-pointer ${
             selectedTeamFilter === 'all'
-              ? 'bg-[#3B82F6]/20 border-[#3B82F6] text-[#F1F5F9]'
-              : 'bg-[#141821] border-[#232938] text-[#94A3B8]'
+              ? 'bg-[#F5F5F0] border-[#F5F5F0] text-[#0A0A0C]'
+              : 'bg-[#131316] border-[#24242B] text-[#9A9AA6]'
           }`}
         >
           Todos ({players.length})
@@ -201,8 +201,10 @@ export function TeamsView({
                 type="button"
                 onClick={() => setSelectedTeamFilter(team.id)}
                 style={active ? badgeStyle : undefined}
-                className={`flex items-center gap-1.5 rounded-l-lg px-3 py-1.5 text-xs font-medium border cursor-pointer ${
-                  active ? '' : 'bg-[#141821] border-[#232938] text-[#94A3B8]'
+                className={`flex items-center gap-2 px-3.5 min-h-[40px] text-xs font-semibold border active:scale-[0.98] cursor-pointer ${
+                  active
+                    ? 'rounded-l-xl'
+                    : 'rounded-xl bg-[#131316] border-[#24242B] text-[#9A9AA6] hover:text-[#F5F5F0]'
                 }`}
               >
                 <span
@@ -211,17 +213,17 @@ export function TeamsView({
                 />
                 <span>{team.name}</span>
               </button>
-              <button
-                type="button"
-                onClick={() => openEditTeam(team)}
-                aria-label={`Editar ${team.name}`}
-                style={active ? badgeStyle : undefined}
-                className={`rounded-r-lg px-2 py-1.5 border border-l-0 cursor-pointer ${
-                  active ? '' : 'bg-[#141821] border-[#232938] text-[#64748B] hover:text-[#F1F5F9]'
-                }`}
-              >
-                <Pencil className="h-3.5 w-3.5" />
-              </button>
+              {active && (
+                <button
+                  type="button"
+                  onClick={() => openEditTeam(team)}
+                  aria-label={`Editar ${team.name}`}
+                  style={badgeStyle}
+                  className="rounded-r-xl px-2.5 min-h-[40px] border border-l-0 flex items-center justify-center cursor-pointer"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </button>
+              )}
             </div>
           )
         })}
@@ -230,20 +232,20 @@ export function TeamsView({
       {/* Search + Quick Manage Team Members */}
       <div className="flex items-center gap-2">
         <div className="relative flex-1">
-          <Search className="h-4 w-4 text-[#64748B] absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="h-4 w-4 text-[#63636E] absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar jugador..."
-            className="w-full rounded-xl bg-[#141821] border border-[#232938] pl-10 pr-3 py-2.5 text-sm text-[#F1F5F9] placeholder-[#475569] focus:outline-none focus:border-[#3B82F6]"
+            className="w-full h-11 rounded-xl bg-[#131316] border border-[#24242B] pl-10 pr-3 text-sm text-[#F5F5F0] placeholder-[#63636E] focus:outline-none focus:border-[#C8FF2E]"
           />
         </div>
         {activeTeam && (
           <button
             type="button"
             onClick={() => openManageMembers(activeTeam)}
-            className="shrink-0 flex items-center gap-1.5 rounded-xl bg-[#3B82F6] px-3 py-2.5 text-xs font-semibold text-white hover:bg-[#2563EB] cursor-pointer"
+            className="shrink-0 flex items-center gap-1.5 rounded-xl bg-[#C8FF2E] px-3.5 h-11 text-xs font-bold text-[#0A0A0C] hover:brightness-95 active:scale-[0.98] cursor-pointer"
           >
             <UserCheck className="h-4 w-4" />
             <span>Gestionar</span>
@@ -251,15 +253,15 @@ export function TeamsView({
         )}
       </div>
 
-      {/* Players List */}
+      {/* Players Bento List */}
       {filteredPlayers.length === 0 ? (
-        <div className="rounded-2xl border border-[#232938] bg-[#141821] p-8 flex flex-col items-center justify-center gap-3">
-          <p className="text-sm text-[#64748B]">Sin jugadores</p>
+        <div className="rounded-2xl border border-[#24242B] bg-[#131316] p-8 flex flex-col items-center justify-center gap-3">
+          <p className="text-sm text-[#63636E]">Sin jugadores</p>
           {activeTeam ? (
             <button
               type="button"
               onClick={() => openManageMembers(activeTeam)}
-              className="rounded-xl bg-[#3B82F6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#2563EB] cursor-pointer"
+              className="rounded-xl bg-[#C8FF2E] px-4 min-h-[44px] text-sm font-bold text-[#0A0A0C] hover:brightness-95 cursor-pointer"
             >
               Añadir jugadores
             </button>
@@ -267,98 +269,107 @@ export function TeamsView({
             <button
               type="button"
               onClick={openNewPlayer}
-              className="rounded-xl bg-[#3B82F6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#2563EB] cursor-pointer"
+              className="rounded-xl bg-[#C8FF2E] px-4 min-h-[44px] text-sm font-bold text-[#0A0A0C] hover:brightness-95 cursor-pointer"
             >
               + Nuevo jugador
             </button>
           )}
         </div>
       ) : (
-        <div className="rounded-2xl border border-[#232938] bg-[#141821] divide-y divide-[#232938]">
-          {filteredPlayers.map((player) => (
-            <div
-              key={player.id}
-              onClick={() => openEditPlayer(player)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  openEditPlayer(player)
-                }
-              }}
-              className="w-full flex items-center justify-between gap-3 px-3.5 py-2.5 text-left hover:bg-[#191F2B] transition-colors cursor-pointer"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <Avatar
-                  firstName={player.firstName}
-                  lastName={player.lastName}
-                  photoBase64={player.photoBase64}
-                />
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-[#F1F5F9] truncate">
-                    {player.firstName} {player.lastName}
-                  </p>
-                  {player.teamIds.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-0.5">
-                      {player.teamIds.map((tid) => {
-                        const team = teamMap.get(tid)
-                        if (!team) return null
-                        return (
-                          <span
-                            key={tid}
-                            style={getTeamBadgeStyle(team.color)}
-                            className="rounded border px-1.5 py-0.5 text-[10px] font-medium"
-                          >
-                            {team.name}
-                          </span>
-                        )
-                      })}
-                    </div>
+        <div className="rounded-2xl border border-[#24242B] bg-[#131316] divide-y divide-[#24242B]">
+          {filteredPlayers.map((player) => {
+            const primaryTeam = player.teamIds.length > 0 ? teamMap.get(player.teamIds[0]) : undefined
+            return (
+              <div
+                key={player.id}
+                onClick={() => openEditPlayer(player)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    openEditPlayer(player)
+                  }
+                }}
+                className="w-full flex items-center justify-between gap-3 px-3.5 py-3 text-left hover:bg-[#1C1C21]/60 transition-colors cursor-pointer"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <Avatar
+                    firstName={player.firstName}
+                    lastName={player.lastName}
+                    photoBase64={player.photoBase64}
+                    ringColor={primaryTeam?.color}
+                  />
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-[#F5F5F0] break-words">
+                      {player.firstName} {player.lastName}
+                    </p>
+                    {player.teamIds.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {player.teamIds.map((tid) => {
+                          const team = teamMap.get(tid)
+                          if (!team) return null
+                          return (
+                            <span
+                              key={tid}
+                              style={getTeamBadgeStyle(team.color)}
+                              className="rounded-md border px-1.5 py-0.5 text-[10px] font-semibold"
+                            >
+                              {team.name}
+                            </span>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1 shrink-0">
+                  {teams.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setQuickTeamsPlayerId(player.id)
+                      }}
+                      aria-label="Asignar equipos"
+                      className="min-h-[40px] min-w-[40px] rounded-xl text-[#9A9AA6] hover:text-[#C8FF2E] hover:bg-[#1C1C21] flex items-center justify-center cursor-pointer"
+                    >
+                      <Tags className="h-4 w-4" />
+                    </button>
                   )}
+                  <span className="min-h-[40px] min-w-[32px] flex items-center justify-center text-[#63636E]">
+                    <Pencil className="h-4 w-4" />
+                  </span>
                 </div>
               </div>
-
-              <div className="flex items-center gap-1 shrink-0">
-                {teams.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setQuickTeamsPlayerId(player.id)
-                    }}
-                    aria-label="Asignar equipos"
-                    className="p-2 rounded-lg text-[#64748B] hover:text-[#3B82F6] hover:bg-[#0B0D12] cursor-pointer"
-                  >
-                    <Tags className="h-4 w-4" />
-                  </button>
-                )}
-                <Pencil className="h-4 w-4 text-[#475569]" />
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
 
-      {/* Team Modal (Create / Edit + Color Picker) */}
+      {/* Team Modal */}
       {teamModal.open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4">
-          <div className="w-full max-w-sm rounded-2xl bg-[#141821] border border-[#232938]">
-            <div className="flex items-center justify-between px-4 py-3.5 border-b border-[#232938]">
-              <h2 className="text-base font-semibold text-[#F1F5F9]">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/75 backdrop-blur-xs p-0 sm:p-4">
+          <div className="w-full max-w-sm rounded-t-3xl sm:rounded-2xl bg-[#131316] border-t sm:border border-[#24242B]">
+            <div className="sm:hidden flex justify-center pt-2.5 pb-1">
+              <div className="w-10 h-1 rounded-full bg-[#32323C]" />
+            </div>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[#24242B]">
+              <h2 className="text-base font-bold text-[#F5F5F0]">
                 {teamModal.editing ? 'Editar equipo' : 'Nuevo equipo'}
               </h2>
               <button
                 type="button"
                 onClick={() => setTeamModal({ open: false })}
-                className="p-1 rounded-lg text-[#64748B] hover:text-[#F1F5F9] cursor-pointer"
+                className="min-h-[40px] min-w-[40px] rounded-xl text-[#9A9AA6] hover:text-[#F5F5F0] flex items-center justify-center cursor-pointer"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <form onSubmit={handleSaveTeam} className="p-4 space-y-4">
+            <form onSubmit={handleSaveTeam} className="p-4 space-y-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
               <div>
-                <label className="block text-xs font-medium text-[#94A3B8] mb-1">Nombre</label>
+                <label className="block text-xs font-medium text-[#9A9AA6] mb-1">Nombre</label>
                 <input
                   type="text"
                   required
@@ -366,12 +377,12 @@ export function TeamsView({
                   value={teamNameInput}
                   onChange={(e) => setTeamNameInput(e.target.value)}
                   placeholder="U12 Amarillo"
-                  className="w-full rounded-xl bg-[#0B0D12] border border-[#232938] px-3 py-2.5 text-sm text-[#F1F5F9] placeholder-[#475569] focus:outline-none focus:border-[#3B82F6]"
+                  className="w-full h-11 rounded-xl bg-[#1C1C21] border border-[#24242B] px-3 text-sm text-[#F5F5F0] placeholder-[#63636E] focus:outline-none focus:border-[#C8FF2E]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-[#94A3B8] mb-2">Color</label>
+                <label className="block text-xs font-medium text-[#9A9AA6] mb-2">Color</label>
                 <div className="flex flex-wrap gap-2.5">
                   {TEAM_COLORS.map((option) => {
                     const selected = teamColorInput.toLowerCase() === option.hex.toLowerCase()
@@ -382,13 +393,13 @@ export function TeamsView({
                         onClick={() => setTeamColorInput(option.hex)}
                         aria-label={option.name}
                         style={{ backgroundColor: option.hex }}
-                        className={`h-7 w-7 rounded-full flex items-center justify-center transition-transform cursor-pointer ${
+                        className={`h-8 w-8 rounded-full flex items-center justify-center transition-transform cursor-pointer ${
                           selected
-                            ? 'ring-2 ring-white ring-offset-2 ring-offset-[#141821] scale-110'
+                            ? 'ring-2 ring-[#F5F5F0] ring-offset-2 ring-offset-[#131316] scale-110'
                             : 'opacity-80 hover:opacity-100'
                         }`}
                       >
-                        {selected && <Check className="h-3.5 w-3.5 text-[#0B0D12] stroke-[3]" />}
+                        {selected && <Check className="h-4 w-4 text-[#0A0A0C] stroke-[3]" />}
                       </button>
                     )
                   })}
@@ -406,14 +417,14 @@ export function TeamsView({
                       }
                       setTeamModal({ open: false })
                     }}
-                    className="rounded-xl border border-[#FB7185]/40 bg-[#FB7185]/10 px-3 py-2.5 text-sm font-medium text-[#FB7185] hover:bg-[#FB7185]/20 cursor-pointer"
+                    className="rounded-xl border border-[#F43F5E]/30 bg-[#F43F5E]/12 px-3.5 min-h-[44px] text-sm font-bold text-[#F43F5E] hover:bg-[#F43F5E]/20 cursor-pointer"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
                 )}
                 <button
                   type="submit"
-                  className="flex-1 rounded-xl bg-[#3B82F6] py-2.5 text-sm font-semibold text-white hover:bg-[#2563EB] cursor-pointer"
+                  className="flex-1 rounded-xl bg-[#C8FF2E] min-h-[44px] text-sm font-bold text-[#0A0A0C] hover:brightness-95 active:scale-[0.98] cursor-pointer"
                 >
                   Guardar
                 </button>
@@ -423,24 +434,27 @@ export function TeamsView({
         </div>
       )}
 
-      {/* Multi-Select Manage Team Members Modal (Never closes on toggle) */}
+      {/* Multi-Select Manage Team Members Modal */}
       {membersModalTeam && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-xs p-0 sm:p-4">
-          <div className="w-full max-w-lg rounded-t-2xl sm:rounded-2xl bg-[#141821] border border-[#232938] max-h-[88vh] flex flex-col">
-            <div className="flex items-center justify-between px-4 py-3.5 border-b border-[#232938]">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/75 backdrop-blur-xs p-0 sm:p-4">
+          <div className="w-full max-w-lg rounded-t-3xl sm:rounded-2xl bg-[#131316] border-t sm:border border-[#24242B] max-h-[90vh] flex flex-col">
+            <div className="sm:hidden flex justify-center pt-2.5 pb-1">
+              <div className="w-10 h-1 rounded-full bg-[#32323C]" />
+            </div>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[#24242B]">
               <div className="flex items-center gap-2 min-w-0">
                 <span
                   className="h-2.5 w-2.5 rounded-full shrink-0"
                   style={{ backgroundColor: membersModalTeam.color }}
                 />
-                <h2 className="text-base font-semibold text-[#F1F5F9] truncate">
+                <h2 className="text-base font-bold text-[#F5F5F0] truncate">
                   {membersModalTeam.name}
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={() => setMembersModalTeam(null)}
-                className="p-1 rounded-lg text-[#64748B] hover:text-[#F1F5F9] cursor-pointer"
+                className="min-h-[40px] min-w-[40px] rounded-xl text-[#9A9AA6] hover:text-[#F5F5F0] flex items-center justify-center cursor-pointer"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -448,16 +462,16 @@ export function TeamsView({
 
             <div className="px-4 pt-3 pb-2 space-y-2">
               <div className="relative">
-                <Search className="h-4 w-4 text-[#64748B] absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="h-4 w-4 text-[#63636E] absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={membersSearch}
                   onChange={(e) => setMembersSearch(e.target.value)}
                   placeholder="Buscar jugador..."
-                  className="w-full rounded-xl bg-[#0B0D12] border border-[#232938] pl-9 pr-3 py-2 text-sm text-[#F1F5F9] placeholder-[#475569] focus:outline-none focus:border-[#3B82F6]"
+                  className="w-full h-11 rounded-xl bg-[#1C1C21] border border-[#24242B] pl-10 pr-3 text-sm text-[#F5F5F0] placeholder-[#63636E] focus:outline-none focus:border-[#C8FF2E]"
                 />
               </div>
-              <div className="flex items-center justify-between text-xs text-[#94A3B8] tabular-nums px-0.5">
+              <div className="flex items-center justify-between text-xs text-[#9A9AA6] tabular-nums px-0.5">
                 <span>{selectedMemberIds.size} seleccionados</span>
                 <span>{players.length} total</span>
               </div>
@@ -465,9 +479,9 @@ export function TeamsView({
 
             <div className="flex-1 overflow-y-auto px-4 pb-3">
               {modalFilteredPlayers.length === 0 ? (
-                <p className="text-sm text-[#64748B] text-center py-6">Sin jugadores</p>
+                <p className="text-sm text-[#63636E] text-center py-6">Sin jugadores</p>
               ) : (
-                <div className="divide-y divide-[#232938] rounded-xl border border-[#232938] bg-[#0B0D12]">
+                <div className="divide-y divide-[#24242B] rounded-2xl border border-[#24242B] bg-[#1C1C21]">
                   {modalFilteredPlayers.map((player) => {
                     const checked = selectedMemberIds.has(player.id)
                     return (
@@ -475,8 +489,8 @@ export function TeamsView({
                         key={player.id}
                         type="button"
                         onClick={() => toggleMemberSelection(player.id)}
-                        className={`w-full flex items-center justify-between px-3 py-2.5 text-left transition-colors cursor-pointer ${
-                          checked ? 'bg-[#3B82F6]/10' : 'hover:bg-[#141821]'
+                        className={`w-full flex items-center justify-between px-3.5 min-h-[48px] py-2 text-left transition-colors cursor-pointer ${
+                          checked ? 'bg-[#C8FF2E]/8' : 'hover:bg-[#24242B]/50'
                         }`}
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
@@ -486,18 +500,18 @@ export function TeamsView({
                             photoBase64={player.photoBase64}
                             size="sm"
                           />
-                          <span className="text-sm text-[#F1F5F9] truncate">
+                          <span className="text-sm font-medium text-[#F5F5F0]">
                             {player.firstName} {player.lastName}
                           </span>
                         </div>
                         <span
                           className={`h-5 w-5 rounded-md border flex items-center justify-center shrink-0 ${
                             checked
-                              ? 'bg-[#3B82F6] border-[#3B82F6] text-white'
-                              : 'border-[#334155] bg-transparent'
+                              ? 'bg-[#C8FF2E] border-[#C8FF2E] text-[#0A0A0C]'
+                              : 'border-[#32323C] bg-[#131316]'
                           }`}
                         >
-                          {checked && <Check className="h-3.5 w-3.5" />}
+                          {checked && <Check className="h-3.5 w-3.5 stroke-[3]" />}
                         </span>
                       </button>
                     )
@@ -506,18 +520,18 @@ export function TeamsView({
               )}
             </div>
 
-            <div className="flex gap-2.5 p-4 border-t border-[#232938]">
+            <div className="flex gap-2.5 p-4 border-t border-[#24242B] pb-[calc(1rem+env(safe-area-inset-bottom))]">
               <button
                 type="button"
                 onClick={() => setMembersModalTeam(null)}
-                className="flex-1 rounded-xl border border-[#232938] bg-[#0B0D12] py-2.5 text-sm font-medium text-[#94A3B8] hover:text-[#F1F5F9] cursor-pointer"
+                className="flex-1 rounded-xl border border-[#24242B] bg-[#1C1C21] min-h-[44px] text-sm font-semibold text-[#9A9AA6] hover:text-[#F5F5F0] cursor-pointer"
               >
                 Cancelar
               </button>
               <button
                 type="button"
                 onClick={handleSaveMembers}
-                className="flex-1 rounded-xl bg-[#3B82F6] py-2.5 text-sm font-semibold text-white hover:bg-[#2563EB] cursor-pointer"
+                className="flex-1 rounded-xl bg-[#C8FF2E] min-h-[44px] text-sm font-bold text-[#0A0A0C] hover:brightness-95 active:scale-[0.98] cursor-pointer"
               >
                 Guardar ({selectedMemberIds.size})
               </button>
@@ -530,20 +544,23 @@ export function TeamsView({
       {quickTeamsPlayer && (
         <div
           onClick={() => setQuickTeamsPlayerId(null)}
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-xs p-0 sm:p-4"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/75 backdrop-blur-xs p-0 sm:p-4"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-sm rounded-t-2xl sm:rounded-2xl bg-[#141821] border border-[#232938]"
+            className="w-full max-w-sm rounded-t-3xl sm:rounded-2xl bg-[#131316] border-t sm:border border-[#24242B]"
           >
-            <div className="flex items-center justify-between px-4 py-3.5 border-b border-[#232938]">
-              <h2 className="text-sm font-semibold text-[#F1F5F9] truncate">
+            <div className="sm:hidden flex justify-center pt-2.5 pb-1">
+              <div className="w-10 h-1 rounded-full bg-[#32323C]" />
+            </div>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[#24242B]">
+              <h2 className="text-sm font-bold text-[#F5F5F0] truncate">
                 Equipos — {quickTeamsPlayer.firstName} {quickTeamsPlayer.lastName}
               </h2>
               <button
                 type="button"
                 onClick={() => setQuickTeamsPlayerId(null)}
-                className="p-1 rounded-lg text-[#64748B] hover:text-[#F1F5F9] cursor-pointer"
+                className="min-h-[40px] min-w-[40px] rounded-xl text-[#9A9AA6] hover:text-[#F5F5F0] flex items-center justify-center cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -558,8 +575,8 @@ export function TeamsView({
                     type="button"
                     onClick={() => onTogglePlayerTeam(quickTeamsPlayer.id, team.id)}
                     style={active ? getTeamBadgeStyle(team.color) : undefined}
-                    className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium border cursor-pointer ${
-                      active ? '' : 'bg-[#0B0D12] border-[#232938] text-[#94A3B8]'
+                    className={`flex items-center gap-1.5 rounded-xl px-3 min-h-[40px] text-xs font-semibold border active:scale-[0.97] cursor-pointer ${
+                      active ? '' : 'bg-[#1C1C21] border-[#24242B] text-[#9A9AA6]'
                     }`}
                   >
                     <span
@@ -572,11 +589,11 @@ export function TeamsView({
               })}
             </div>
 
-            <div className="px-4 pb-4">
+            <div className="px-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
               <button
                 type="button"
                 onClick={() => setQuickTeamsPlayerId(null)}
-                className="w-full rounded-xl bg-[#3B82F6] py-2.5 text-sm font-semibold text-white hover:bg-[#2563EB] cursor-pointer"
+                className="w-full rounded-xl bg-[#C8FF2E] min-h-[44px] text-sm font-bold text-[#0A0A0C] hover:brightness-95 cursor-pointer"
               >
                 Listo
               </button>
@@ -587,27 +604,29 @@ export function TeamsView({
 
       {/* Player Modal */}
       {playerModal.open && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-xs p-0 sm:p-4">
-          <div className="w-full max-w-md rounded-t-2xl sm:rounded-2xl bg-[#141821] border border-[#232938]">
-            <div className="flex items-center justify-between px-4 py-3.5 border-b border-[#232938]">
-              <h2 className="text-base font-semibold text-[#F1F5F9]">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/75 backdrop-blur-xs p-0 sm:p-4">
+          <div className="w-full max-w-md rounded-t-3xl sm:rounded-2xl bg-[#131316] border-t sm:border border-[#24242B]">
+            <div className="sm:hidden flex justify-center pt-2.5 pb-1">
+              <div className="w-10 h-1 rounded-full bg-[#32323C]" />
+            </div>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[#24242B]">
+              <h2 className="text-base font-bold text-[#F5F5F0]">
                 {playerModal.editing ? 'Editar jugador' : 'Nuevo jugador'}
               </h2>
               <button
                 type="button"
                 onClick={() => setPlayerModal({ open: false })}
-                className="p-1 rounded-lg text-[#64748B] hover:text-[#F1F5F9] cursor-pointer"
+                className="min-h-[40px] min-w-[40px] rounded-xl text-[#9A9AA6] hover:text-[#F5F5F0] flex items-center justify-center cursor-pointer"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <form onSubmit={handleSubmitPlayer} className="p-4 space-y-3.5">
-              {/* Photo */}
+            <form onSubmit={handleSubmitPlayer} className="p-4 space-y-3.5 pb-[calc(1rem+env(safe-area-inset-bottom))]">
               <div className="flex items-center gap-3">
                 <Avatar firstName={firstName || '?'} lastName={lastName} photoBase64={photoBase64} size="lg" />
                 <div className="flex items-center gap-2">
-                  <label className="flex items-center gap-1.5 rounded-xl border border-[#232938] bg-[#0B0D12] px-3 py-2 text-xs font-medium text-[#E2E8F0] hover:border-[#3B82F6] cursor-pointer">
-                    <Camera className="h-4 w-4 text-[#3B82F6]" />
+                  <label className="flex items-center gap-1.5 rounded-xl border border-[#24242B] bg-[#1C1C21] px-3.5 min-h-[40px] text-xs font-semibold text-[#F5F5F0] hover:border-[#32323C] cursor-pointer">
+                    <Camera className="h-4 w-4 text-[#C8FF2E]" />
                     <span>Foto</span>
                     <input type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
                   </label>
@@ -615,7 +634,7 @@ export function TeamsView({
                     <button
                       type="button"
                       onClick={() => setPhotoBase64(undefined)}
-                      className="rounded-xl border border-[#232938] bg-[#0B0D12] px-2.5 py-2 text-xs text-[#94A3B8] hover:text-[#FB7185] cursor-pointer"
+                      className="rounded-xl border border-[#24242B] bg-[#1C1C21] px-3 min-h-[40px] text-xs font-semibold text-[#9A9AA6] hover:text-[#F43F5E] cursor-pointer"
                     >
                       Quitar
                     </button>
@@ -625,31 +644,31 @@ export function TeamsView({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-[#94A3B8] mb-1">Nombre</label>
+                  <label className="block text-xs font-medium text-[#9A9AA6] mb-1">Nombre</label>
                   <input
                     type="text"
                     required
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     placeholder="Nombre"
-                    className="w-full rounded-xl bg-[#0B0D12] border border-[#232938] px-3 py-2 text-sm text-[#F1F5F9] placeholder-[#475569] focus:outline-none focus:border-[#3B82F6]"
+                    className="w-full h-11 rounded-xl bg-[#1C1C21] border border-[#24242B] px-3 text-sm text-[#F5F5F0] placeholder-[#63636E] focus:outline-none focus:border-[#C8FF2E]"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[#94A3B8] mb-1">Apellidos</label>
+                  <label className="block text-xs font-medium text-[#9A9AA6] mb-1">Apellidos</label>
                   <input
                     type="text"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     placeholder="Apellidos"
-                    className="w-full rounded-xl bg-[#0B0D12] border border-[#232938] px-3 py-2 text-sm text-[#F1F5F9] placeholder-[#475569] focus:outline-none focus:border-[#3B82F6]"
+                    className="w-full h-11 rounded-xl bg-[#1C1C21] border border-[#24242B] px-3 text-sm text-[#F5F5F0] placeholder-[#63636E] focus:outline-none focus:border-[#C8FF2E]"
                   />
                 </div>
               </div>
 
               {teams.length > 0 && (
                 <div>
-                  <label className="block text-xs font-medium text-[#94A3B8] mb-1.5">Equipos</label>
+                  <label className="block text-xs font-medium text-[#9A9AA6] mb-1.5">Equipos</label>
                   <div className="flex flex-wrap gap-1.5">
                     {teams.map((team) => {
                       const active = playerTeamIds.includes(team.id)
@@ -663,8 +682,8 @@ export function TeamsView({
                             )
                           }
                           style={active ? getTeamBadgeStyle(team.color) : undefined}
-                          className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium border cursor-pointer ${
-                            active ? '' : 'bg-[#0B0D12] border-[#232938] text-[#94A3B8]'
+                          className={`flex items-center gap-1.5 rounded-xl px-3 min-h-[36px] text-xs font-semibold border cursor-pointer ${
+                            active ? '' : 'bg-[#1C1C21] border-[#24242B] text-[#9A9AA6]'
                           }`}
                         >
                           <span
@@ -687,14 +706,14 @@ export function TeamsView({
                       await onDeletePlayer(playerModal.editing!.id)
                       setPlayerModal({ open: false })
                     }}
-                    className="rounded-xl border border-[#FB7185]/40 bg-[#FB7185]/10 px-3 py-2.5 text-sm font-medium text-[#FB7185] hover:bg-[#FB7185]/20 cursor-pointer"
+                    className="rounded-xl border border-[#F43F5E]/30 bg-[#F43F5E]/12 px-3.5 min-h-[44px] text-sm font-bold text-[#F43F5E] hover:bg-[#F43F5E]/20 cursor-pointer"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
                 )}
                 <button
                   type="submit"
-                  className="flex-1 rounded-xl bg-[#3B82F6] py-2.5 text-sm font-semibold text-white hover:bg-[#2563EB] cursor-pointer"
+                  className="flex-1 rounded-xl bg-[#C8FF2E] min-h-[44px] text-sm font-bold text-[#0A0A0C] hover:brightness-95 active:scale-[0.98] cursor-pointer"
                 >
                   Guardar
                 </button>

@@ -57,19 +57,19 @@ export function TournamentsView({
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight text-[#F1F5F9]">Torneos</h1>
+        <h1 className="text-[26px] font-extrabold tracking-tight text-[#F5F5F0]">Torneos</h1>
         <button
           type="button"
           onClick={onCreateTournament}
           aria-label="Nuevo torneo"
-          className="h-9 w-9 rounded-xl bg-[#3B82F6] text-white flex items-center justify-center hover:bg-[#2563EB] transition-colors cursor-pointer"
+          className="w-11 h-11 rounded-2xl bg-[#C8FF2E] text-[#0A0A0C] flex items-center justify-center hover:brightness-95 active:scale-[0.98] transition-all cursor-pointer"
         >
-          <Plus className="h-5 w-5" />
+          <Plus className="h-5 w-5 stroke-[2.5]" />
         </button>
       </div>
 
-      {/* Filters */}
-      <div className="flex gap-2">
+      {/* Segmented Filter */}
+      <div className="grid grid-cols-3 gap-1 bg-[#131316] border border-[#24242B] p-1 rounded-xl">
         {(
           [
             ['all', 'Todos'],
@@ -83,10 +83,10 @@ export function TournamentsView({
               key={key}
               type="button"
               onClick={() => setFilter(key)}
-              className={`rounded-lg px-3.5 py-1.5 text-xs font-medium border transition-colors cursor-pointer ${
+              className={`rounded-lg min-h-[38px] text-xs transition-all active:scale-[0.98] cursor-pointer ${
                 active
-                  ? 'bg-[#3B82F6]/20 border-[#3B82F6] text-[#F1F5F9]'
-                  : 'bg-[#141821] border-[#232938] text-[#94A3B8] hover:text-[#F1F5F9]'
+                  ? 'bg-[#F5F5F0] text-[#0A0A0C] font-bold'
+                  : 'text-[#9A9AA6] font-medium hover:text-[#F5F5F0]'
               }`}
             >
               {label}
@@ -97,12 +97,12 @@ export function TournamentsView({
 
       {/* List */}
       {filteredTournaments.length === 0 ? (
-        <div className="rounded-2xl border border-[#232938] bg-[#141821] p-8 flex flex-col items-center justify-center gap-3">
-          <p className="text-sm text-[#64748B]">Sin torneos</p>
+        <div className="rounded-2xl border border-[#24242B] bg-[#131316] p-8 flex flex-col items-center justify-center gap-3">
+          <p className="text-sm text-[#63636E]">Sin torneos</p>
           <button
             type="button"
             onClick={onCreateTournament}
-            className="rounded-xl bg-[#3B82F6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#2563EB] cursor-pointer"
+            className="rounded-xl bg-[#C8FF2E] px-4 min-h-[44px] text-sm font-bold text-[#0A0A0C] hover:brightness-95 active:scale-[0.98] transition-all cursor-pointer"
           >
             + Nuevo torneo
           </button>
@@ -121,12 +121,14 @@ export function TournamentsView({
                 key={t.id}
                 type="button"
                 onClick={() => onSelectTournament(t.id)}
-                className="w-full text-left rounded-2xl border border-[#232938] bg-[#141821] p-3.5 hover:border-[#334155] transition-colors cursor-pointer flex items-center gap-3.5"
+                className="w-full text-left rounded-2xl border border-[#24242B] bg-[#131316] p-3.5 hover:border-[#32323C] active:scale-[0.98] transition-all cursor-pointer flex items-center gap-3.5"
               >
                 {/* Calendar block */}
-                <div className="w-13 h-14 shrink-0 rounded-xl bg-[#0B0D12] border border-[#232938] flex flex-col items-center justify-center">
-                  <span className="text-lg font-bold leading-none text-[#F1F5F9] tabular-nums">{day}</span>
-                  <span className="text-[11px] font-semibold tracking-wider text-[#94A3B8] mt-1">
+                <div className="w-14 h-16 shrink-0 rounded-xl bg-[#1C1C21] border border-[#24242B] flex flex-col items-center justify-center">
+                  <span className="font-mono text-xl font-bold leading-none text-[#F5F5F0] tabular-nums">
+                    {day}
+                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#C8FF2E] mt-1">
                     {month}
                   </span>
                 </div>
@@ -134,18 +136,23 @@ export function TournamentsView({
                 {/* Details */}
                 <div className="flex-1 min-w-0 space-y-2">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm font-semibold text-[#F1F5F9] truncate">
+                    <p className="text-sm font-bold text-[#F5F5F0] truncate">
                       {weekday ? `${weekday} — ${t.name}` : t.name}
                     </p>
                     {fin.totalCount > 0 && (
                       <span
-                        className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold tabular-nums shrink-0 ${
+                        className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold tabular-nums shrink-0 ${
                           allPaid
-                            ? 'bg-[#34D399]/15 text-[#34D399]'
-                            : 'bg-[#FB7185]/15 text-[#FB7185]'
+                            ? 'bg-[#22C55E]/12 border-[#22C55E]/25 text-[#22C55E]'
+                            : 'bg-[#F43F5E]/12 border-[#F43F5E]/25 text-[#F43F5E]'
                         }`}
                       >
-                        {allPaid ? 'Todos pagados' : `${fin.pendingCount} pendientes`}
+                        <span
+                          className={`h-1.5 w-1.5 rounded-full ${
+                            allPaid ? 'bg-[#22C55E]' : 'bg-[#F43F5E]'
+                          }`}
+                        />
+                        <span>{allPaid ? 'Pagado' : `${fin.pendingCount} pend.`}</span>
                       </span>
                     )}
                   </div>
@@ -156,33 +163,35 @@ export function TournamentsView({
                         <span
                           key={team.id}
                           style={getTeamBadgeStyle(team.color)}
-                          className="rounded-md border px-2 py-0.5 text-[11px] font-medium truncate"
+                          className="rounded-md border px-2 py-0.5 text-[11px] font-semibold truncate"
                         >
                           {team.name}
                         </span>
                       ))}
                     </div>
-                    <div className="flex items-center gap-2.5 text-[11px] text-[#94A3B8] tabular-nums shrink-0">
-                      <span className="inline-flex items-center gap-1 text-[#60A5FA]">
+                    <div className="flex items-center gap-2.5 text-[11px] text-[#9A9AA6] tabular-nums shrink-0">
+                      <span className="inline-flex items-center gap-1 text-[#38BDF8]">
                         <Bus className="h-3.5 w-3.5" />
                         <span>{fin.busCount}</span>
                       </span>
-                      <span className="inline-flex items-center gap-1 text-[#FBBF24]">
+                      <span className="inline-flex items-center gap-1 text-[#F59E0B]">
                         <Car className="h-3.5 w-3.5" />
                         <span>{fin.carCount}</span>
                       </span>
                       <span>
-                        {fin.playerCount} convocados
-                        {fin.passengerCount > 0 ? ` + ${fin.passengerCount} pasaj.` : ''} · {fin.paidCount}{' '}
-                        {fin.paidCount === 1 ? 'pagado' : 'pagados'}
+                        {fin.playerCount} conv.
+                        {fin.passengerCount > 0 ? ` + ${fin.passengerCount} pas.` : ''} · {fin.paidCount}/
+                        {fin.totalCount} pag.
                       </span>
                     </div>
                   </div>
 
                   {/* Progress bar */}
-                  <div className="h-1.5 w-full rounded-full bg-[#1F2433] overflow-hidden">
+                  <div className="h-1.5 w-full rounded-full bg-[#1C1C21] overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-[#34D399] transition-all"
+                      className={`h-full rounded-full transition-all ${
+                        allPaid ? 'bg-[#22C55E]' : 'bg-[#C8FF2E]'
+                      }`}
                       style={{ width: `${progressPct}%` }}
                     />
                   </div>

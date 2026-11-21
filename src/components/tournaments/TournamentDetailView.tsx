@@ -3,6 +3,7 @@ import {
   Bus,
   Calendar,
   Car,
+  Check,
   ChevronLeft,
   Copy,
   CreditCard,
@@ -52,6 +53,7 @@ export function TournamentDetailView({
 }: TournamentDetailViewProps) {
   const [showAddModal, setShowAddModal] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [copiedLang, setCopiedLang] = useState<'et' | 'en' | null>(null)
 
   const playerMap = useMemo(() => new Map(players.map((p) => [p.id, p])), [players])
   const teamMap = useMemo(() => new Map(teams.map((t) => [t.id, t])), [teams])
@@ -67,6 +69,7 @@ export function TournamentDetailView({
     }
     return Array.from(found.values())
   }, [tournament.participants, playerMap, teamMap])
+
   const fin = useMemo(
     () => calculateTournamentFees(tournament, Boolean(tournament.publishCoachPrices)),
     [tournament]
@@ -88,11 +91,14 @@ export function TournamentDetailView({
 
   const progressPct =
     fin.expectedTotal > 0 ? Math.min(100, Math.round((fin.collectedTotal / fin.expectedTotal) * 100)) : 0
+  const allPaid = fin.totalCount > 0 && fin.pendingCount === 0
 
   const handleCopy = async (lang: 'et' | 'en') => {
     const text = generateParentMessage(tournament, lang)
     try {
       await navigator.clipboard.writeText(text)
+      setCopiedLang(lang)
+      window.setTimeout(() => setCopiedLang((curr) => (curr === lang ? null : curr)), 1500)
       onShowToast(lang === 'et' ? 'Copiado (ET)' : 'Copiado (EN)')
     } catch {
       onShowToast('Error al copiar')
@@ -204,16 +210,16 @@ export function TournamentDetailView({
             type="button"
             onClick={onBack}
             aria-label="Volver"
-            className="p-1.5 -ml-1.5 rounded-xl text-[#94A3B8] hover:text-[#F1F5F9] hover:bg-[#141821] cursor-pointer shrink-0"
+            className="min-h-[44px] min-w-[44px] -ml-2 rounded-xl text-[#9A9AA6] hover:text-[#F5F5F0] hover:bg-[#131316] flex items-center justify-center active:scale-[0.98] transition-all cursor-pointer shrink-0"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
-          <h1 className="text-lg font-semibold text-[#F1F5F9] truncate">{tournament.name}</h1>
+          <h1 className="text-xl font-extrabold tracking-tight text-[#F5F5F0]">{tournament.name}</h1>
           {tournamentTeams.map((team) => (
             <span
               key={team.id}
               style={getTeamBadgeStyle(team.color)}
-              className="rounded-md border px-2 py-0.5 text-[11px] font-medium shrink-0"
+              className="rounded-md border px-2 py-0.5 text-[11px] font-semibold shrink-0"
             >
               {team.name}
             </span>
@@ -225,7 +231,7 @@ export function TournamentDetailView({
             type="button"
             onClick={onEdit}
             aria-label="Editar torneo"
-            className="p-2 rounded-xl text-[#94A3B8] hover:text-[#F1F5F9] hover:bg-[#141821] cursor-pointer"
+            className="min-h-[44px] min-w-[44px] rounded-xl text-[#9A9AA6] hover:text-[#F5F5F0] hover:bg-[#131316] flex items-center justify-center active:scale-[0.98] cursor-pointer"
           >
             <Pencil className="h-4 w-4" />
           </button>
@@ -233,7 +239,7 @@ export function TournamentDetailView({
             <button
               type="button"
               onClick={onDelete}
-              className="rounded-lg bg-[#FB7185]/20 border border-[#FB7185] px-2.5 py-1 text-xs font-semibold text-[#FB7185] cursor-pointer"
+              className="rounded-xl bg-[#F43F5E]/15 border border-[#F43F5E]/40 px-3 min-h-[38px] text-xs font-bold text-[#F43F5E] active:scale-[0.98] cursor-pointer"
             >
               Confirmar
             </button>
@@ -242,7 +248,7 @@ export function TournamentDetailView({
               type="button"
               onClick={() => setConfirmDelete(true)}
               aria-label="Eliminar torneo"
-              className="p-2 rounded-xl text-[#94A3B8] hover:text-[#FB7185] hover:bg-[#141821] cursor-pointer"
+              className="min-h-[44px] min-w-[44px] rounded-xl text-[#9A9AA6] hover:text-[#F43F5E] hover:bg-[#131316] flex items-center justify-center active:scale-[0.98] cursor-pointer"
             >
               <Trash2 className="h-4 w-4" />
             </button>
@@ -250,7 +256,7 @@ export function TournamentDetailView({
         </div>
       </div>
 
-      {/* Logistics Card */}
+      {/* Bento Logistics */}
       {(formattedDateLabel ||
         tournament.address ||
         tournament.busDepartureTime ||
@@ -258,36 +264,34 @@ export function TournamentDetailView({
         tournament.tournamentCost > 0 ||
         tournament.busCost > 0 ||
         tournament.matchSchedule) && (
-        <div className="rounded-2xl border border-[#232938] bg-[#141821] p-3.5 space-y-2.5 text-xs">
-          {/* Fila 1: Fecha y Lugar */}
+        <div className="rounded-2xl border border-[#24242B] bg-[#131316] p-4 space-y-2.5 text-xs">
           {(formattedDateLabel || tournament.address) && (
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
               {formattedDateLabel && (
-                <div className="flex items-center gap-1.5 text-[#E2E8F0]">
-                  <Calendar className="h-4 w-4 text-[#3B82F6] shrink-0" />
-                  <span>{formattedDateLabel}</span>
+                <div className="flex items-center gap-2 text-[#F5F5F0] font-medium">
+                  <Calendar className="h-4 w-4 text-[#C8FF2E] shrink-0" />
+                  <span className="tabular-nums">{formattedDateLabel}</span>
                 </div>
               )}
               {tournament.address && (
-                <div className="flex items-center gap-1.5 text-[#E2E8F0]">
-                  <MapPin className="h-4 w-4 text-[#FB7185] shrink-0" />
+                <div className="flex items-center gap-2 text-[#F5F5F0]">
+                  <MapPin className="h-4 w-4 text-[#F43F5E] shrink-0" />
                   <span>{tournament.address}</span>
                 </div>
               )}
             </div>
           )}
 
-          {/* Fila 2: Horarios Bus / Coche */}
           {(tournament.busDepartureTime || tournament.carArrivalTime) && (
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-[#CBD5E1]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-[#9A9AA6]">
               {tournament.busDepartureTime && (
-                <div className="flex items-center gap-1.5">
-                  <Bus className="h-4 w-4 text-[#3B82F6] shrink-0" />
+                <div className="flex items-center gap-2">
+                  <Bus className="h-4 w-4 text-[#38BDF8] shrink-0" />
                   <span className="tabular-nums">Bus — {tournament.busDepartureTime}</span>
                 </div>
               )}
               {tournament.carArrivalTime && (
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-2">
                   <Car className="h-4 w-4 text-[#F59E0B] shrink-0" />
                   <span className="tabular-nums">Coche — {tournament.carArrivalTime}</span>
                 </div>
@@ -295,59 +299,64 @@ export function TournamentDetailView({
             </div>
           )}
 
-          {/* Fila 3: Costes nominales */}
           {(tournament.tournamentCost > 0 || tournament.busCost > 0) && (
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 pt-2 border-t border-[#232938]/70 text-[#CBD5E1]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 pt-2.5 border-t border-[#24242B] text-[#9A9AA6]">
               {tournament.tournamentCost > 0 && (
-                <div className="flex items-center gap-1.5">
-                  <Euro className="h-4 w-4 text-[#34D399] shrink-0" />
+                <div className="flex items-center gap-2">
+                  <Euro className="h-4 w-4 text-[#22C55E] shrink-0" />
                   <span className="tabular-nums">
-                    Inscripción: {formatMoneyCompact(tournament.tournamentCost)}
+                    Inscripción: <strong className="text-[#F5F5F0] font-mono">{formatMoneyCompact(tournament.tournamentCost)}</strong>
                   </span>
                 </div>
               )}
               {tournament.busCost > 0 && (
-                <div className="flex items-center gap-1.5">
-                  <Bus className="h-4 w-4 text-[#94A3B8] shrink-0" />
+                <div className="flex items-center gap-2">
+                  <Bus className="h-4 w-4 text-[#38BDF8] shrink-0" />
                   <span className="tabular-nums">
-                    Transporte: {formatMoneyCompact(tournament.busCost)}
+                    Transporte: <strong className="text-[#F5F5F0] font-mono">{formatMoneyCompact(tournament.busCost)}</strong>
                   </span>
                 </div>
               )}
             </div>
           )}
 
-          {/* Fila 4: Horario de partidos */}
           {tournament.matchSchedule && (
-            <p className="text-[#94A3B8] whitespace-pre-line pt-2 border-t border-[#232938]/70">
+            <p className="text-[#9A9AA6] whitespace-pre-line pt-2.5 border-t border-[#24242B]">
               {tournament.matchSchedule}
             </p>
           )}
         </div>
       )}
 
-      {/* Financial Card */}
-      <div className="rounded-2xl border border-[#232938] bg-[#141821] p-3.5 space-y-2.5">
+      {/* Bento Financial */}
+      <div className="rounded-2xl border border-[#24242B] bg-[#131316] p-4 space-y-3">
         <div className="flex items-end justify-between gap-2">
           <div>
-            <div className="text-lg font-bold tabular-nums leading-tight">
-              <span className="text-[#34D399]">{formatMoneyCompact(fin.collectedTotal)}</span>
-              <span className="text-[#64748B] font-medium"> / {formatMoneyCompact(fin.expectedTotal)}</span>
+            <div className="leading-tight tabular-nums">
+              <span className="font-mono text-2xl font-bold text-[#C8FF2E]">
+                {formatMoneyCompact(fin.collectedTotal)}
+              </span>
+              <span className="font-mono text-sm font-medium text-[#9A9AA6]">
+                {' '}
+                / {formatMoneyCompact(fin.expectedTotal)}
+              </span>
             </div>
-            <div className="text-[11px] text-[#34D399]">recaudado</div>
+            <div className="text-[11px] font-medium text-[#9A9AA6] mt-0.5">recaudado</div>
           </div>
 
           <div className="text-right">
-            <div className="text-lg font-bold tabular-nums leading-tight text-[#FB7185]">
+            <div className="font-mono text-lg font-bold leading-tight text-[#F43F5E] tabular-nums">
               {formatMoneyCompact(fin.pendingTotal)}
             </div>
-            <div className="text-[11px] text-[#FB7185]">pendiente</div>
+            <div className="text-[11px] font-medium text-[#F43F5E] mt-0.5">pendiente</div>
           </div>
         </div>
 
-        <div className="h-1.5 w-full rounded-full bg-[#1F2433] overflow-hidden">
+        <div className="h-2 w-full rounded-full bg-[#1C1C21] overflow-hidden">
           <div
-            className="h-full rounded-full bg-[#34D399] transition-all"
+            className={`h-full rounded-full transition-all ${
+              allPaid ? 'bg-[#22C55E]' : 'bg-[#C8FF2E]'
+            }`}
             style={{ width: `${progressPct}%` }}
           />
         </div>
@@ -355,58 +364,79 @@ export function TournamentDetailView({
 
       {/* Copy ET / EN */}
       <div className="grid grid-cols-2 gap-2.5">
-        <button
-          type="button"
-          onClick={() => handleCopy('et')}
-          className="flex items-center justify-center gap-2 rounded-xl border border-[#232938] bg-[#141821] py-2.5 text-xs font-semibold text-[#E2E8F0] hover:border-[#3B82F6] transition-colors cursor-pointer"
-        >
-          <Copy className="h-3.5 w-3.5 text-[#94A3B8]" />
-          <span>Copiar ET</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => handleCopy('en')}
-          className="flex items-center justify-center gap-2 rounded-xl border border-[#232938] bg-[#141821] py-2.5 text-xs font-semibold text-[#E2E8F0] hover:border-[#3B82F6] transition-colors cursor-pointer"
-        >
-          <Copy className="h-3.5 w-3.5 text-[#94A3B8]" />
-          <span>Copiar EN</span>
-        </button>
+        {(
+          [
+            ['et', 'ET', 'Copiar ET'],
+            ['en', 'EN', 'Copiar EN'],
+          ] as const
+        ).map(([lang, code, label]) => {
+          const isCopied = copiedLang === lang
+          return (
+            <button
+              key={lang}
+              type="button"
+              onClick={() => handleCopy(lang)}
+              className={`flex items-center justify-center gap-2 rounded-xl border min-h-[44px] text-xs font-bold active:scale-[0.98] transition-all cursor-pointer ${
+                isCopied
+                  ? 'bg-[#C8FF2E] border-[#C8FF2E] text-[#0A0A0C]'
+                  : 'bg-[#1C1C21] border-[#24242B] text-[#F5F5F0] hover:border-[#32323C]'
+              }`}
+            >
+              {isCopied ? (
+                <>
+                  <Check className="h-4 w-4" />
+                  <span>Copiado</span>
+                </>
+              ) : (
+                <>
+                  <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#131316] border border-[#24242B] text-[#9A9AA6]">
+                    {code}
+                  </span>
+                  <Copy className="h-3.5 w-3.5 text-[#9A9AA6]" />
+                  <span>{label}</span>
+                </>
+              )}
+            </button>
+          )
+        })}
       </div>
 
       {/* Players Header */}
       <div className="flex items-center justify-between pt-1">
-        <h2 className="text-sm font-semibold text-[#F1F5F9]">
-          Jugadores <span className="text-[#64748B] tabular-nums">({fin.playerCount})</span>
+        <div className="flex items-center gap-2">
+          <h2 className="text-sm font-bold text-[#F5F5F0]">
+            Jugadores <span className="font-mono text-[#9A9AA6] tabular-nums">({fin.playerCount})</span>
+          </h2>
           {fin.passengerCount > 0 && (
-            <span className="text-[#C084FC] text-xs font-medium tabular-nums ml-2">
-              · {fin.passengerCount} {fin.passengerCount === 1 ? 'pasajero' : 'pasajeros'}
+            <span className="rounded-md bg-[#A855F7]/15 border border-[#A855F7]/30 px-2 py-0.5 text-[11px] font-semibold text-[#C084FC] tabular-nums">
+              +{fin.passengerCount} pasaj.
             </span>
           )}
-        </h2>
+        </div>
         <button
           type="button"
           onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-1 rounded-lg bg-[#3B82F6] px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-[#2563EB] cursor-pointer"
+          className="flex items-center gap-1.5 rounded-xl bg-[#C8FF2E] px-3.5 min-h-[40px] text-xs font-bold text-[#0A0A0C] hover:brightness-95 active:scale-[0.98] transition-all cursor-pointer"
         >
-          <Plus className="h-3.5 w-3.5" />
+          <Plus className="h-4 w-4 stroke-[2.5]" />
           <span>Añadir</span>
         </button>
       </div>
 
-      {/* Participants List */}
+      {/* Participants 2-Line Bento List */}
       {tournament.participants.length === 0 ? (
-        <div className="rounded-2xl border border-[#232938] bg-[#141821] p-6 flex flex-col items-center justify-center gap-2.5">
-          <p className="text-sm text-[#64748B]">Sin jugadores</p>
+        <div className="rounded-2xl border border-[#24242B] bg-[#131316] p-6 flex flex-col items-center justify-center gap-3">
+          <p className="text-sm text-[#63636E]">Sin jugadores</p>
           <button
             type="button"
             onClick={() => setShowAddModal(true)}
-            className="rounded-xl bg-[#3B82F6] px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#2563EB] cursor-pointer"
+            className="rounded-xl bg-[#C8FF2E] px-4 min-h-[44px] text-xs font-bold text-[#0A0A0C] hover:brightness-95 active:scale-[0.98] cursor-pointer"
           >
             + Añadir jugadores
           </button>
         </div>
       ) : (
-        <div className="rounded-2xl border border-[#232938] bg-[#141821] divide-y divide-[#232938]">
+        <div className="rounded-2xl border border-[#24242B] bg-[#131316] divide-y divide-[#24242B]">
           {sortedParticipants.map((part) => {
             const player = playerMap.get(part.playerId)
             const displayName = formatParticipantName(part, player)
@@ -415,97 +445,131 @@ export function TournamentDetailView({
             const isPassenger = part.role === 'passenger'
 
             return (
-              <div
-                key={part.playerId}
-                className="flex items-center justify-between gap-2 px-3 py-2.5"
-              >
-                <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                  <Avatar
-                    firstName={player?.firstName ?? (nameParts[0] || '?')}
-                    lastName={player?.lastName ?? (nameParts[1] || '')}
-                    photoBase64={player?.photoBase64}
-                    size="sm"
-                  />
-                  <span className="text-sm font-medium text-[#F1F5F9] truncate">
-                    {displayName}
-                  </span>
-                </div>
+              <div key={part.playerId} className="flex items-start gap-3 px-3.5 py-3">
+                <Avatar
+                  firstName={player?.firstName ?? (nameParts[0] || '?')}
+                  lastName={player?.lastName ?? (nameParts[1] || '')}
+                  photoBase64={player?.photoBase64}
+                  size="md"
+                />
 
-                <div className="flex items-center gap-1.5 shrink-0">
-                  {/* Transport / Role Pill */}
-                  <button
-                    type="button"
-                    onClick={() => handleToggleTransport(part.playerId)}
-                    className={`rounded-lg border px-2 py-1 text-[11px] font-semibold cursor-pointer transition-colors ${
-                      isPassenger
-                        ? 'bg-[#A855F7]/15 border-[#A855F7]/40 text-[#C084FC]'
-                        : part.transport === 'bus'
-                          ? 'bg-[#3B82F6]/15 border-[#3B82F6]/40 text-[#60A5FA]'
-                          : 'bg-[#F59E0B]/15 border-[#F59E0B]/40 text-[#FBBF24]'
-                    }`}
-                  >
-                    {isPassenger ? 'Pasajero' : part.transport === 'bus' ? 'Bus' : 'Coche'}
-                  </button>
+                <div className="flex-1 min-w-0 space-y-2">
+                  {/* Line 1: Full Name + Fee */}
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex flex-wrap items-center gap-1.5 min-w-0">
+                      <span className="text-sm font-semibold text-[#F5F5F0] leading-snug break-words">
+                        {displayName}
+                      </span>
+                      {isPassenger && (
+                        <span className="rounded px-1.5 py-0.5 text-[10px] font-bold bg-[#A855F7]/15 border border-[#A855F7]/30 text-[#C084FC]">
+                          Pasajero
+                        </span>
+                      )}
+                    </div>
+                    <span className="font-mono font-bold text-[15px] text-[#F5F5F0] tabular-nums shrink-0">
+                      {formatMoney(fee)}
+                    </span>
+                  </div>
 
-                  {/* Fee */}
-                  <span className="text-xs font-semibold text-[#E2E8F0] tabular-nums w-14 text-right">
-                    {formatMoney(fee)}
-                  </span>
-
-                  {/* Paid / Pending + Method */}
-                  {part.paid ? (
-                    <div className="flex items-center gap-1 shrink-0">
+                  {/* Line 2: Touch Controls */}
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <button
                         type="button"
-                        onClick={() => handleTogglePaymentMethod(part.playerId)}
-                        className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-[#34D399]/15 px-2.5 py-1 text-[11px] font-semibold text-[#34D399] hover:bg-[#34D399]/25 cursor-pointer"
+                        onClick={() => handleToggleTransport(part.playerId)}
+                        className={`inline-flex items-center gap-1 rounded-xl border px-2.5 min-h-[36px] text-[11px] font-bold active:scale-[0.97] transition-all cursor-pointer ${
+                          isPassenger
+                            ? 'bg-[#A855F7]/15 border-[#A855F7]/35 text-[#C084FC]'
+                            : part.transport === 'bus'
+                              ? 'bg-[#38BDF8]/12 border-[#38BDF8]/30 text-[#38BDF8]'
+                              : 'bg-[#F59E0B]/12 border-[#F59E0B]/30 text-[#F59E0B]'
+                        }`}
                       >
-                        {part.paymentMethod === 'cash' ? (
+                        {isPassenger ? (
+                          <span>Pasajero</span>
+                        ) : part.transport === 'bus' ? (
                           <>
-                            <Banknote className="h-3.5 w-3.5 shrink-0" />
-                            <span>Efectivo</span>
+                            <Bus className="h-3.5 w-3.5" />
+                            <span>Bus</span>
                           </>
                         ) : (
                           <>
-                            <CreditCard className="h-3.5 w-3.5 shrink-0" />
-                            <span>Transferencia</span>
+                            <Car className="h-3.5 w-3.5" />
+                            <span>Coche</span>
                           </>
                         )}
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => handleTogglePaid(part.playerId)}
-                        title="Marcar pendiente"
-                        className="rounded-full p-1 text-[#64748B] hover:text-[#FB7185] cursor-pointer"
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </button>
+
+                      {part.paid ? (
+                        <div className="inline-flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => handleTogglePaymentMethod(part.playerId)}
+                            className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-xl border border-[#22C55E]/30 bg-[#22C55E]/12 px-3 min-h-[36px] text-[11px] font-bold text-[#22C55E] hover:bg-[#22C55E]/20 active:scale-[0.97] cursor-pointer"
+                          >
+                            {part.paymentMethod === 'cash' ? (
+                              <>
+                                <Banknote className="h-3.5 w-3.5 shrink-0" />
+                                <span>Efectivo</span>
+                              </>
+                            ) : (
+                              <>
+                                <CreditCard className="h-3.5 w-3.5 shrink-0" />
+                                <span>Transferencia</span>
+                              </>
+                            )}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleTogglePaid(part.playerId)}
+                            title="Marcar pendiente"
+                            className="min-h-[36px] min-w-[36px] rounded-xl text-[#63636E] hover:text-[#F43F5E] flex items-center justify-center active:scale-[0.95] cursor-pointer"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleTogglePaid(part.playerId)}
+                          className="whitespace-nowrap rounded-xl border border-[#F43F5E]/30 bg-[#F43F5E]/12 px-3 min-h-[36px] text-[11px] font-bold text-[#F43F5E] hover:bg-[#F43F5E]/20 active:scale-[0.97] cursor-pointer"
+                        >
+                          Pendiente
+                        </button>
+                      )}
                     </div>
-                  ) : (
-                    <div className="flex items-center gap-1 shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => handleTogglePaid(part.playerId)}
-                        className="whitespace-nowrap rounded-full bg-[#FB7185]/15 px-2.5 py-1 text-[11px] font-semibold text-[#FB7185] hover:bg-[#FB7185]/25 cursor-pointer"
-                      >
-                        Pendiente
-                      </button>
+
+                    {!part.paid && (
                       <button
                         type="button"
                         onClick={() => handleRemoveParticipant(part.playerId)}
                         title="Quitar"
-                        className="rounded-full p-1 text-[#475569] hover:text-[#FB7185] cursor-pointer"
+                        className="min-h-[36px] min-w-[36px] rounded-xl text-[#63636E] hover:text-[#F43F5E] flex items-center justify-center active:scale-[0.95] cursor-pointer"
                       >
-                        <X className="h-3.5 w-3.5" />
+                        <X className="h-4 w-4" />
                       </button>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
             )
           })}
         </div>
       )}
+
+      {/* Comentarios */}
+      <div className="rounded-2xl border border-[#24242B] bg-[#131316] p-4 space-y-2">
+        <label className="block text-[11px] font-bold uppercase tracking-wider text-[#63636E]">
+          Comentarios
+        </label>
+        <textarea
+          rows={3}
+          value={tournament.notes ?? ''}
+          onChange={(e) => onUpdateTournament({ ...tournament, notes: e.target.value })}
+          placeholder="Comentarios..."
+          className="w-full rounded-xl bg-[#1C1C21] border border-[#24242B] px-3 py-2.5 text-sm text-[#F5F5F0] placeholder-[#63636E] focus:outline-none focus:border-[#C8FF2E] resize-y"
+        />
+      </div>
 
       {showAddModal && (
         <AddParticipantsModal
@@ -518,18 +582,6 @@ export function TournamentDetailView({
           onAddPassenger={handleAddPassenger}
         />
       )}
-
-      {/* Comentarios */}
-      <div className="rounded-2xl border border-[#232938] bg-[#141821] p-3.5 space-y-2">
-        <label className="block text-xs font-semibold text-[#94A3B8]">Comentarios</label>
-        <textarea
-          rows={3}
-          value={tournament.notes ?? ''}
-          onChange={(e) => onUpdateTournament({ ...tournament, notes: e.target.value })}
-          placeholder="Comentarios..."
-          className="w-full rounded-xl bg-[#0B0D12] border border-[#232938] px-3 py-2 text-sm text-[#F1F5F9] placeholder-[#475569] focus:outline-none focus:border-[#3B82F6] resize-y"
-        />
-      </div>
     </div>
   )
 }
